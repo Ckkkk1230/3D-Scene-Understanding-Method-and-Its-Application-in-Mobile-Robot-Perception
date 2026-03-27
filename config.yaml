@@ -1,0 +1,60 @@
+# 路径配置
+paths:
+  data_root: ./data  # NYU/KITTI数据集根目录
+  nyu_images: "./data/nyu_images"  # 室内数据集
+  nyu_labels: "./data/nyu_labels"
+  nyu_depths: "./data/nyu_depths"
+  kitti_train: KITTI/train      # 室外数据集
+  kitti_val: KITTI/val
+  checkpoints: ./checkpoints    # 模型权重保存
+  outputs: ./outputs            # 结果输出
+  onnx: ./onnx_model            # ONNX模型保存
+  logs: ./logs                  # 日志保存
+
+
+dataset:
+  dataset_type: nyu  # nyu/kitti 切换室内/室外
+  data_root: dataset/nyu/training
+  image_size: 256    # 输入分辨率
+  num_classes: 40    # NYU40类语义，KITTI可修改
+  augment:
+    random_crop: True
+    random_flip: True
+    color_jitter: False
+  depth_mode: midas  # 双模式深度估计：midas/cv
+
+# 模型配置（PPT要求：RGB+深度4输入，三任务输出）
+model:
+  in_channels: 4     # 3(RGB)+1(深度)
+  base_channels: 32  # 轻量化通道数，降低算力
+  semantic_out: 40   # 语义分割输出通道（类别数）
+  depth_out: 1       # 深度补全输出通道
+  obstacle_out: 1    # 障碍物检测输出通道
+
+# 训练配置（PPT高性能训练环境：i9-14900KF+RTX4090）
+train:
+  epochs: 100
+  batch_size: 16
+  lr: 0.0002
+  beta1: 0.5
+  beta2: 0.999
+  num_workers: 8
+  save_every: 5      # 每5轮保存权重
+  # 多任务损失权重
+  loss_weight:
+    semantic: 1.0
+    depth: 10.0      # 深度损失权重（PPTλdepth=20）
+    obstacle: 5.0
+    dce: 2.0         # DCE几何一致性损失权重
+
+# 轻量化配置（PPT边缘设备轻量化）
+lightweight:
+  prune_ratio: 0.2   # 剪枝率
+  quantize: True     # 是否INT8量化
+
+# 部署配置（PPT边缘部署：Jetson NX）
+deploy:
+  device: jetson     # pc/jetson
+  input_shape: [1,4,256,256]  # ONNX输入形状
+  onnx_opset: 12
+  fps_target: 15     # PPT要求：推理速度≥15FPS

@@ -1,0 +1,28 @@
+robot_scene_perception/
+├── config.yaml                # 统一配置文件（所有参数可配）
+├── main.py                    # 全流程命令行入口
+├── make_dummy_data.py         # 假数据生成（冒烟测试）
+├── data/
+│   ├── dataset.py             # 改造后RGB+深度双输入数据集（适配NYU/KITTI）
+│   ├── loader.py              # 多任务数据加载器
+│   └── camera_capture.py      # 相机实时读取+预处理模块
+├── models/
+│   ├── generator.py           # 改造后多任务U-Net（三任务输出头）
+│   ├── discriminator.py       # 原有模块（兼容）
+│   ├── trainer.py             # 改造后多任务训练器（含DCE损失）
+│   └── inference.py           # 补全后多任务推理模块（含相机/FPS/ONNX）
+├── utils/
+│   ├── config.py              # 配置加载
+│   ├── logger.py              # 日志模块
+│   ├── checkpoint.py          # 权重保存/加载+目录创建
+│   ├── depth.py               # 原有双模式深度估计（复用）
+│   ├── visualize.py           # 改造后多任务可视化
+│   ├── metrics.py             # 新增指标计算（含DCE/FPS）
+│   ├── lightweight.py         # 新增模型剪枝量化
+│   └── onnx_exporter.py       # 新增ONNX导出+校验
+├── datasets/                  # NYU/KITTI数据集目录
+│   ├── NYU_Depth_V2/
+│   └── KITTI/
+├── checkpoints/               # 模型权重保存
+├── outputs/                   # 推理/可视化结果保存
+└── onnx_model/                # ONNX模型保存
